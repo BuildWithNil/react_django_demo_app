@@ -1,7 +1,41 @@
-version: '3.9'
+version: "3.8"
 
 services:
-  web:
-    build: .
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: react_django_backend
     ports:
-      - "8001:8001"
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=1  # Or your Django env vars
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: react_django_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15-alpine
+    container_name: react_django_db
+    environment:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: yourdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
